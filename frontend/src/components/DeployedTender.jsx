@@ -6,6 +6,7 @@ import { ProcurementContext } from '../context/ProcurementContext';
 const DeployedTender = ({ headingTitle, tender }) => {
 const [modal, setModal] = useState(false);
 const { createTenderData } = useContext(ProcurementContext)
+const { description } = createTenderData;
 
 const toggleModal = () => {
   setModal(!modal);
@@ -32,7 +33,7 @@ const toggleModal = () => {
           <div className='grid grid-cols-4'>
             <p className='p-3'>1</p>
             <p className='p-3'>0xsdfrfdesgyhujkihygtfrdrg</p>
-            <p className='p-3'>{createTenderData}</p>
+            <p className='p-3'></p>
             <p className='cursor-pointer flex justify-center p-3'><ImCancelCircle /></p>
           </div>
         </div>

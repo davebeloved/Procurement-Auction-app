@@ -38,11 +38,12 @@ const { ethereum } = window;
 export const ProcurementProvider = ({children}) => {
 
     const [currentAccount, setCurrentAccount] = useState('');
-    const [createTenderData, setCreateTenderData] = useState('');
+    const [createTenderData, setCreateTenderData] = useState({ description: ''});
     const [loading, setIsLoading] = useState(false);
+    const [transactions, setTransactios] = useState([]);
 
-    const handleChange = (e) => {
-        setCreateTenderData(e.target.value);
+    const handleChange = (e, name) => {
+        setCreateTenderData((prev)=> ({ [name]: e.target.value }));
     }
 
 
@@ -50,7 +51,7 @@ export const ProcurementProvider = ({children}) => {
         try {
                 if (!ethereum) return alert('please install MetaMask');
                 const accounts = await ethereum.request({method: 'eth_accounts'});
-
+       
                 if (accounts.length) {
                     setCurrentAccount(accounts[0]);
                   
@@ -66,6 +67,30 @@ export const ProcurementProvider = ({children}) => {
      
       
     }
+
+    // const getAllTransactions = async() => {
+    //     try {
+          
+    //         if (!ethereum) return alert('please install MetaMask');
+    //         const transactionContract = getEthereumContract();
+    //         const availableTransactions = await transactionContract.getAllTransactions();
+    //         const structuredTransactions = await availableTransactions.map((transaction) => ({
+    //             addressTo: transaction.reciever,
+    //             addressFrom: transaction.sender,
+    //             timestamp: new Date(transaction.timestamp.toNumber() * 1000).toLocaleString(),
+    //             message: transaction.message,
+    //             keyword: transaction.keyword,
+    //             amount: parseInt(transaction.amount._hex) / (10 ** 18)
+    //         }))
+
+    //         setTransactions(structuredTransactions);
+
+    //         console.log(structuredTransactions);
+    //     } catch (error) {
+    //         console.log(error);
+    //     }
+    // }
+
 
 
     const connectWallet = async () => {
@@ -96,23 +121,25 @@ export const ProcurementProvider = ({children}) => {
       }
 
 
+
+
       const createTenders = async () => {
         try {
-            if (!ethereum) return alert('please install MetaMask');
-            const transactionContract = getEthereumContract();
-            const accounts = await ethereum.request({method: 'eth_requestAccounts'});
-             const transactionHash = await transactionContract.CreateTender(createTenderData, accounts[0]);
-             
-             setIsLoading(true);
-             console.log(`Loading - ${transactionHash.hash}`);
-             await transactionHash.wait();
-             setIsLoading(false);
-             console.log(`Success - ${transactionHash.hash}`);
-   
+                const { description } = createTenderData;
+       
+                const transactionContract = getEthereumContract();
+                const options = { gasLimit: 5000000 };
+
+                const transactionHash = await transactionContract.CreateTender( description, currentAccount, options);
+                setIsLoading(true);
+                console.log(`Loading - ${transactionHash.hash}`);
+                await transactionHash.wait();
+                setIsLoading(false);
+                console.log(`Success - ${transactionHash.hash}`);
         
             
         } catch (error) {
-            console.log(error.message);
+            console.log(error);
             throw new Error("No Ethereum object.");
         }
     }
